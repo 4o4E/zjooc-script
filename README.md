@@ -4,7 +4,7 @@
 
 **如果此脚本对你有帮助, 请点一个star, 这对我有非常大的帮助**
 
-**遇到问题请在(issue)[https://github.com/4o4E/zjooc-script/issues]反馈**
+**遇到问题请在[issue](https://github.com/4o4E/zjooc-script/issues)反馈**
 
 ## 如何使用
 
