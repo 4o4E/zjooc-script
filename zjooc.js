@@ -19,44 +19,55 @@
     // 点击链接跳转到下一学习后等待加载的时长
     next: 1500,
     // 跳转后开始前的等待时长
-    before: 1000
+    before: 1000,
+    // 自动点击第一个未刷完的学习
+    autoChoose: true
   }
 
+  const btnStyle = "color: red; font-size: 20px; line-height: 28px; font-weight: 1000;"
+
   function getCurrent() {
-    return $(".fr .el-tabs__nav-scroll .el-tabs__nav .is-active span > span").text();
+    let list = $(".plan-detail > .el-header > ul > li").map((_, b) => $(b).text().trim());
+    return list[0] + " > " + list[1] + " > " + list[2];
   }
 
   // 前往下一个学习
   function next() {
-    // 当前播放列表
+    if (stop) return;
+    // 尝试从当前播放列表中挑选下一个(同一节)
     let next = $(".fr .el-tabs__nav-scroll .el-tabs__nav").find(".is-active + .el-tabs__item.is-top").first();
     if (next.length != 0) {
       console.log("[zjooc] > 跳转至下一项: " + next.find("span > span").text());
+      console.log(next[0]);
       next.click();
       return;
     }
 
-    // 当前节
-    next = $(".base-asider .el-submenu.is-active ul > li + li").first();
+    // 尝试从当前节中挑选下一个(同一章)
+    next = $(".base-asider .el-submenu.is-active .is-active + li").first();
     if (next.length != 0) {
       console.log("[zjooc] > 跳转至下一节: " + next.text());
+      console.log(next[0]);
       next.click();
       return;
     }
 
-    // 下一章
+    // 尝试从下一章中挑选第一个
     next = $(".base-asider .el-submenu.is-active + li").find("ul > li").first();
     if (next.length != 0) {
       console.log("[zjooc] > 跳转至下一章: " + next.text());
+      console.log(next[0]);
       next.click();
       return;
     }
     alert("已完成所有学习");
+    stop = true;
     return;
   }
 
   // 尝试完成文档类型的学习
   function tryDoc() {
+    if (stop) return;
     console.log("[zjooc] > 开始文档学习: " + getCurrent());
     // 点击完成学习按钮
     $(".el-main .el-button")[0].click();
@@ -65,7 +76,8 @@
       // 学习完成
       console.log("[zjooc] > 文档学习完成: " + getCurrent());
       next();
-      setTimeout(start, config.before);
+      if (stop) return;
+      setTimeout(checkAndStart, config.before);
     }, config.next);
   }
 
@@ -81,11 +93,28 @@
 
   // 尝试完成视频学习
   function tryVideo() {
+    if (stop) return;
     console.log("[zjooc] > 开始视频学习: " + getCurrent());
     configVideo();
     // let b = false;
     // 循环检测是否结束
     let id = setInterval(() => {
+      // 错误的检测
+      if ($("video").length == 0) {
+        clearInterval(id);
+        tryDoc();
+        return;
+      }
+      // 已完成
+      if ($(".fr .el-tabs__nav-scroll .el-tabs__nav .is-active span > i")[0].classList.contains("complete")) {
+        console.log("[zjooc] > 跳过学习过的内容: " + getCurrent());
+        // 取消定时器
+        clearInterval(id);
+        next();
+        if (stop) return;
+        setTimeout(checkAndStart, config.before);
+        return;
+      }
       let arr = $("video")[0].parentElement.children[2].children[7].innerHTML.split(' / ');
       // 若视频未开始播放则修复
       if (arr[0] === "00:00") configVideo();
@@ -96,21 +125,82 @@
         clearInterval(id);
         // 下一个
         next();
-        setTimeout(start, config.before);
+        if (stop) return;
+        setTimeout(checkAndStart, config.before);
         return;
       }
     }, 250);
   }
 
   // 检测学习类型并开始学习
-  function start() {
-    if ($(".fr .el-tabs__nav-scroll .el-tabs__nav .is-active span > i")[0].classList.contains("complete")) next();
+  function checkAndStart() {
+    if (stop) return;
+    if ($(".fr .el-tabs__nav-scroll .el-tabs__nav .is-active span > i")[0].classList.contains("complete")) {
+      console.log("[zjooc] > 跳过学习过的内容: " + getCurrent());
+      next();
+      if (stop) return;
+    }
     if ($("video").length != 0) tryVideo();
     else tryDoc();
   }
 
-  console.log("[zjooc] > 等待加载中...");
-  setTimeout(() => {
-    start();
-  }, config.start);
+  // 修复所在的位置和左侧导航栏位置不同的bug
+  function fix() {
+    let list = $(".plan-detail > .el-header > ul > li").map((_, b) => $(b).text().trim());
+    $(".base-asider .el-submenu")
+      .filter((_, obj) => $(obj).find(".of_eno")[0].innerHTML.trim() === list[0])
+      .find("ul > li")
+      .filter((_, obj) => $(obj).find(".of_eno")[0].innerHTML.trim() === list[1])
+      .first()
+      .click();
+  }
+
+  let stop = false;
+
+  // 添加事件监听
+  function bind(element, func) {
+    try {
+      // Chrome、FireFox、Opera、Safari、IE9.0及其以上版本
+      element.addEventListener("click", func, false);
+    } catch (e) {
+      try {
+        // IE8.0及其以下版本
+        element.attachEvent('onclick', func);
+      } catch (e) {
+        // 早期浏览器
+        console.warn("[zjooc] > 绑定事件失败", e)
+      }
+    }
+  }
+
+  // 创建按钮
+  function createBtn() {
+    let li2 = document.createElement("li");
+    li2.setAttribute("class", "li_second");
+    let span2 = document.createElement("span");
+    span2.innerHTML = "停止学习";
+    span2.style = btnStyle
+    // 添加事件监听
+    bind(li2, () => { stop = true; });
+    li2.appendChild(span2);
+    $(".online_service")[0].insertBefore(li2, $(".online_service > li")[0]);
+
+    let li1 = document.createElement("li");
+    li1.setAttribute("class", "li_second");
+    let span1 = document.createElement("span");
+    span1.innerHTML = "开始学习";
+    span1.style = btnStyle
+    // 添加事件监听
+    bind(li1, start);
+    li1.appendChild(span1);
+    $(".online_service")[0].insertBefore(li1, $(".online_service > li")[0]);
+  }
+
+  function start() {
+    stop = false;
+    fix();
+    checkAndStart();
+  }
+
+  window.onload = createBtn;
 })();
