@@ -15,9 +15,9 @@
   // 设置, 根据自己的网络状况调整
   const config = {
     // 首次学习开始之前的延迟(等待html加载)
-    start: 1000,
+    start: 3000,
     // 点击链接跳转到下一学习后等待加载的时长
-    next: 1000,
+    next: 1500,
     // 跳转后开始前的等待时长
     before: 1000
   }
@@ -31,7 +31,7 @@
     // 当前播放列表
     let next = $(".fr .el-tabs__nav-scroll .el-tabs__nav").find(".is-active + .el-tabs__item.is-top").first();
     if (next.length != 0) {
-      console.log("[zjooc] > 跳转至下一项: " + next.text());
+      console.log("[zjooc] > 跳转至下一项: " + next.find("span > span").text());
       next.click();
       return;
     }
@@ -89,7 +89,7 @@
       let arr = $("video")[0].parentElement.children[2].children[7].innerHTML.split(' / ');
       // 若视频未开始播放则修复
       if (arr[0] === "00:00") configVideo();
-      if (arr[0] === arr[1]) {
+      if (arr[0] === arr[1] && arr[0] != "00:00") {
         // 播放完成
         console.log("[zjooc] > 视频播放完成: " + getCurrent());
         // 取消定时器
@@ -108,6 +108,7 @@
     else tryDoc();
   }
 
+  console.log("[zjooc] > 等待加载中...");
   setTimeout(() => {
     start();
   }, config.start);
