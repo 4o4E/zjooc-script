@@ -23,7 +23,7 @@
   }
 
   function getCurrent() {
-    return $(".fr .el-tabs__nav-scroll .el-tabs__nav .is-active span > span")[0].innerHTML;
+    return $(".fr .el-tabs__nav-scroll .el-tabs__nav .is-active span > span").text();
   }
 
   // 前往下一个学习
@@ -104,6 +104,7 @@
 
   // 检测学习类型并开始学习
   function start() {
+    if ($(".fr .el-tabs__nav-scroll .el-tabs__nav .is-active span > i")[0].classList.contains("complete")) next();
     if ($("video").length != 0) tryVideo();
     else tryDoc();
   }
