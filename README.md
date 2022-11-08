@@ -2,6 +2,8 @@
 
 自动挂机刷[zjooc](https://www.zjooc.cn/)的[油猴](https://www.tampermonkey.net/)脚本, 目前支持视频学习(自动静音+4倍速)和文档学习
 
+部分代码来源于[ColdThunder11/ZJOOCAutoPlay](https://github.com/ColdThunder11/ZJOOCAutoPlay)
+
 ## 如何使用
 
 1. 下载并安装[油猴](https://www.tampermonkey.net/)浏览器扩展
