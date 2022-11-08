@@ -1,6 +1,6 @@
 # zjooc-script
 
-自动挂机刷[zjooc](https://www.zjooc.cn/)的[油猴](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo)脚本, 目前支持视频学习(自动静音+4倍速)和文档学习
+自动挂机刷[zjooc](https://www.zjooc.cn/)的[油猴](https://www.tampermonkey.net/)脚本, 目前支持视频学习(自动静音+4倍速)和文档学习
 
 ## 如何使用
 
