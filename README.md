@@ -4,7 +4,7 @@
 
 ## 如何使用
 
-1. 下载并安装[油猴](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo)浏览器扩展
+1. 下载并安装[油猴](https://www.tampermonkey.net/)浏览器扩展
 2. 点击打开上方文件列表中的[`zjooc.js`](zjooc.js)并复制其中的文本
 3. 在浏览器的扩展中打开油猴的管理面板
 4. 点击右上角的加号
