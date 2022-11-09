@@ -17,11 +17,9 @@
     // 首次学习开始之前的延迟(等待html加载)
     start: 3000,
     // 点击链接跳转到下一学习后等待加载的时长
-    next: 1500,
+    next: 3000,
     // 跳转后开始前的等待时长
-    before: 1000,
-    // 自动点击第一个未刷完的学习
-    autoChoose: true
+    before: 3000
   }
 
   const btnStyle = "color: red; font-size: 20px; line-height: 28px; font-weight: 1000;"
@@ -39,6 +37,7 @@
     if (next.length != 0) {
       console.log("[zjooc] > 跳转至下一项: " + next.find("span > span").text());
       console.log(next[0]);
+      next[0].style = "color: green;";
       next.click();
       return;
     }
@@ -48,6 +47,7 @@
     if (next.length != 0) {
       console.log("[zjooc] > 跳转至下一节: " + next.text());
       console.log(next[0]);
+      next[0].style = "color: green;";
       next.click();
       return;
     }
@@ -57,6 +57,7 @@
     if (next.length != 0) {
       console.log("[zjooc] > 跳转至下一章: " + next.text());
       console.log(next[0]);
+      next[0].style = "color: green;";
       next.click();
       return;
     }
@@ -123,10 +124,12 @@
         console.log("[zjooc] > 视频播放完成: " + getCurrent());
         // 取消定时器
         clearInterval(id);
-        // 下一个
-        next();
         if (stop) return;
-        setTimeout(checkAndStart, config.before);
+        // 等待跳转
+        setTimeout(() => {
+          next();
+          setTimeout(checkAndStart, config.before);
+        }, config.next);
         return;
       }
     }, 250);
