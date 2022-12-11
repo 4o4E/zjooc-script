@@ -92,11 +92,14 @@
     $("video")[0].parentElement.children[2].children[0].click();
   }
 
+  let lastTime;
+
   // 尝试完成视频学习
   function tryVideo() {
     if (stop) return;
     console.log("[zjooc] > 开始视频学习: " + getCurrent());
     configVideo();
+    lastTime = "-1";
     // let b = false;
     // 循环检测是否结束
     let id = setInterval(() => {
@@ -118,7 +121,8 @@
       }
       let arr = $("video")[0].parentElement.children[2].children[7].innerHTML.split(' / ');
       // 若视频未开始播放则修复
-      if (arr[0] === "00:00") configVideo();
+      if (arr[0] === "00:00" || arr[0] === lastTime) configVideo();
+      lastTime = arr[0];
       if (arr[0] === arr[1] && arr[0] != "00:00") {
         // 播放完成
         console.log("[zjooc] > 视频播放完成: " + getCurrent());
@@ -132,7 +136,7 @@
         }, config.next);
         return;
       }
-    }, 250);
+    }, 1000);
   }
 
   // 检测学习类型并开始学习
