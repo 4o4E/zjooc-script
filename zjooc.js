@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         zjooc
 // @namespace    https://github.com/4o4E/zjooc-script
-// @version      1.0.0
+// @version      1.0.1
 // @description  zjooc 自动刷题
 // @author       404E
 // @match        *://www.zjooc.cn/ucenter/student/course/study/*/plan/detail/*
