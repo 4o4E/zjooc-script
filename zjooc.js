@@ -19,7 +19,9 @@
     // 点击链接跳转到下一学习后等待加载的时长
     next: 3000,
     // 跳转后开始前的等待时长
-    before: 3000
+    before: 3000,
+    // 跳过已完成的视频
+    skip: true
   }
 
   const btnStyle = "color: red; font-size: 20px; line-height: 28px; font-weight: 1000;"
@@ -31,39 +33,43 @@
 
   // 前往下一个学习
   function next() {
-    if (stop) return;
-    // 尝试从当前播放列表中挑选下一个(同一节)
-    let next = $(".fr .el-tabs__nav-scroll .el-tabs__nav").find(".is-active + .el-tabs__item.is-top").first();
-    if (next.length != 0) {
-      console.log("[zjooc] > 跳转至下一项: " + next.find("span > span").text());
-      console.log(next[0]);
-      next[0].style = "color: green;";
-      next.click();
-      return;
-    }
-
-    // 尝试从当前节中挑选下一个(同一章)
-    next = $(".base-asider .el-submenu.is-active .is-active + li").first();
-    if (next.length != 0) {
-      console.log("[zjooc] > 跳转至下一节: " + next.text());
-      console.log(next[0]);
-      next[0].style = "color: green;";
-      next.click();
-      return;
-    }
-
-    // 尝试从下一章中挑选第一个
-    next = $(".base-asider .el-submenu.is-active + li").find("ul > li").first();
-    if (next.length != 0) {
-      console.log("[zjooc] > 跳转至下一章: " + next.text());
-      console.log(next[0]);
-      next[0].style = "color: green;";
-      next.click();
-      return;
-    }
-    alert("已完成所有学习");
-    stop = true;
-    return;
+    setTimeout(() => {
+      if (stop) return;
+      // 尝试从当前播放列表中挑选下一个(同一节)
+      let next = $(".fr .el-tabs__nav-scroll .el-tabs__nav").find(".is-active + .el-tabs__item.is-top").first();
+      if (next.length != 0) {
+        console.log("[zjooc] > 跳转至下一项: " + next.find("span > span").text());
+        console.log(next[0]);
+        next[0].style = "color: green;";
+        next.click();
+        setTimeout(checkAndStart, config.before);
+        return;
+      }
+  
+      // 尝试从当前节中挑选下一个(同一章)
+      next = $(".base-asider .el-submenu.is-active .is-active + li").first();
+      if (next.length != 0) {
+        console.log("[zjooc] > 跳转至下一节: " + next.text());
+        console.log(next[0]);
+        next[0].style = "color: green;";
+        next.click();
+        setTimeout(checkAndStart, config.before);
+        return;
+      }
+  
+      // 尝试从下一章中挑选第一个
+      next = $(".base-asider .el-submenu.is-active + li").find("ul > li").first();
+      if (next.length != 0) {
+        console.log("[zjooc] > 跳转至下一章: " + next.text());
+        console.log(next[0]);
+        next[0].style = "color: green;";
+        next.click();
+        setTimeout(checkAndStart, config.before);
+        return;
+      }
+      alert("已完成所有学习");
+      stop = true;
+    }, 1000);
   }
 
   // 尝试完成文档类型的学习
@@ -75,10 +81,8 @@
     // 等待跳转
     setTimeout(() => {
       // 学习完成
-      console.log("[zjooc] > 文档学习完成: " + getCurrent());
+      console.log("[zjooc] > 完成文档学习: " + getCurrent());
       next();
-      if (stop) return;
-      setTimeout(checkAndStart, config.before);
     }, config.next);
   }
 
@@ -110,13 +114,11 @@
         return;
       }
       // 已完成
-      if ($(".fr .el-tabs__nav-scroll .el-tabs__nav .is-active span > i")[0].classList.contains("complete")) {
+      if (config.skip && $(".fr .el-tabs__nav-scroll .el-tabs__nav .is-active span > i")[0].classList.contains("complete")) {
         console.log("[zjooc] > 跳过学习过的内容: " + getCurrent());
         // 取消定时器
         clearInterval(id);
         next();
-        if (stop) return;
-        setTimeout(checkAndStart, config.before);
         return;
       }
       let arr = $("video")[0].parentElement.children[2].children[7].innerHTML.split(' / ');
@@ -125,15 +127,12 @@
       lastTime = arr[0];
       if (arr[0] === arr[1] && arr[0] != "00:00") {
         // 播放完成
-        console.log("[zjooc] > 视频播放完成: " + getCurrent());
+        console.log("[zjooc] > 完成视频学习: " + getCurrent());
         // 取消定时器
         clearInterval(id);
         if (stop) return;
         // 等待跳转
-        setTimeout(() => {
-          next();
-          setTimeout(checkAndStart, config.before);
-        }, config.next);
+        setTimeout(next, config.next);
         return;
       }
     }, 1000);
@@ -142,10 +141,11 @@
   // 检测学习类型并开始学习
   function checkAndStart() {
     if (stop) return;
-    if ($(".fr .el-tabs__nav-scroll .el-tabs__nav .is-active span > i")[0].classList.contains("complete")) {
+    // 已完成
+    if (config.skip && $(".fr .el-tabs__nav-scroll .el-tabs__nav .is-active span > i")[0].classList.contains("complete")) {
       console.log("[zjooc] > 跳过学习过的内容: " + getCurrent());
       next();
-      if (stop) return;
+      return;
     }
     if ($("video").length != 0) tryVideo();
     else tryDoc();
